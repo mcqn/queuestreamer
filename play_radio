@@ -1,0 +1,49 @@
+#!/usr/bin/ruby
+# Simple script to do some testing (and to use) while developing the rails app
+
+class MusicFile
+  attr_accessor :filename, :created_at
+  
+  def initialize(filename, created_at)
+    @filename = filename
+    @created_at = created_at
+  end
+end
+
+# Directory containing the music to play
+music_dir = "~/Downloads/music/"
+
+# Loop through looking for files to play
+Dir.chdir(music_dir) do
+  queue = []
+  Dir.foreach(".") do |f|
+    # Simple check for now, as we're only interested in m4a files
+    if File.extname(f) == ".m4a" || File.extname(f) == ".mp3" || File.extname(f) == ".flv"
+      puts "Adding #{f} to the queue"
+      queue.push(MusicFile.new(f, File.ctime(f)))
+    end
+  end
+  puts
+  puts "Sorting..."
+  #queue.each { |f| puts f.created_at.to_s+": "+f.filename }
+  queue.sort! { |x,y| x.created_at <=> y.created_at }
+  puts "Sorted."
+  #queue.each { |f| puts f.created_at.to_s+": "+f.filename }
+  puts
+  puts "Playing..."
+  queue.each do |f|
+    # Using system because that gives us useful stdout (i.e. you
+    # can see how far through you've played, as the stdout isn't
+    # consumed by ``)
+    puts "Playing #{f.filename}"
+    unless system("mplayer '#{f.filename}'")
+      # If we get here, then mplayer didn't exit cleanly. As that'll
+      # usually be because the user has interrupted it with Ctrl-C
+      # we don't want to delete this file, nor carry on with the 
+      # next, so just exit
+      exit
+    end
+    File.delete(f.filename)
+  end
+end
+
