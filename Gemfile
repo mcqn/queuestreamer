@@ -43,3 +43,14 @@ end
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+# Using Bootstrap for the front-end
+gem 'bootstrap-sass'
+group :development do
+  gem 'rails_layout'
+end
+
+# Talking to redis
+gem "redis", "~> 3.0.1"
+gem "hiredis", "~> 0.4.5"
+gem "em-synchrony"
